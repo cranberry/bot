@@ -15,3 +15,7 @@ $pathCranberryBotVendor = $pathCranberryBotBase . '/vendor';
 include_once( $pathCranberryBotSrc . '/Autoloader.php' );
 Autoloader::register();
 
+/*
+ * Initialize vendor autoloading
+ */
+include_once( $pathCranberryBotVendor . '/twitteroauth/autoload.php' );
