@@ -5,29 +5,44 @@
  */
 namespace Cranberry\Bot\Twitter;
 
-trait Consumer
+trait Bot
 {
-	/**
-	 * @var	array
-	 */
-	protected $credentials=[];
-
 	/**
 	 * @var	Cranberry\Bot\Twitter\Twitter
 	 */
 	protected $twitter;
 
 	/**
+	 * @var	array
+	 */
+	protected $twitterCredentials=[];
+
+	/**
+	 * Lazy-load Twitter object
+	 *
 	 * @return	Cranberry\Bot\Twitter\Twitter
 	 */
 	protected function getTwitterObject()
 	{
 		if( !($this->twitter instanceof Twitter) )
 		{
-			$this->twitter = new Twitter( $this->credentials );
+			$this->twitter = new Twitter( $this->twitterCredentials );
 		}
 
 		return $this->twitter;
+	}
+
+	/**
+	 * Set credentials for later lazy-loading of Twitter object
+	 *
+	 * @param	array	$twitterCredentials
+	 */
+	public function setTwitterCredentials( $twitterCredentials )
+	{
+		if( is_array( $twitterCredentials ) )
+		{
+			$this->twitterCredentials = $twitterCredentials;
+		}
 	}
 
 	/**
@@ -46,16 +61,5 @@ trait Consumer
 		}
 
 		return $response;
-	}
-
-	/**
-	 * @param	array	$credentials
-	 */
-	public function setTwitterCredentials( $credentials )
-	{
-		if( is_array( $credentials ) )
-		{
-			$this->credentials = $credentials;
-		}
 	}
 }
