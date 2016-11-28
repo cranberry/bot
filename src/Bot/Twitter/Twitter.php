@@ -15,35 +15,43 @@ class Twitter
 	protected $connection;
 
 	/**
+	 * @var	array
+	 */
+	protected $credentials=[];
+
+	/**
 	 * @param	array	$credentials
 	 * @return	void
 	 */
 	public function __construct( array $credentials )
 	{
+		$this->credentials = $credentials;
+	}
+
+	/**
+	 * @param
+	 * @return	void
+	 */
+	protected function getConnectionObject()
+	{
+		if( $this->connection instanceof TwitterOAuth )
+		{
+			return $this->connection;
+		}
+
 		$requiredKeys = ['consumerKey','consumerSecret','accessToken','accessTokenSecret'];
 		foreach( $requiredKeys as $requiredKey )
 		{
-			if( !isset( $credentials[$requiredKey] ) )
+			if( !isset( $this->credentials[$requiredKey] ) )
 			{
 				throw new \InvalidArgumentException( "Missing required Twitter credentials key '{$requiredKey}'" );
 			}
 		}
 
-		extract( $credentials );
+		extract( $this->credentials );
 		$this->connection = new TwitterOAuth( $consumerKey, $consumerSecret, $accessToken, $accessTokenSecret );
-	}
 
-	/**
-	 * @param	string	$message
-	 */
-	public function postMessage( $message )
-	{
-		$this->connection->post( 'statuses/update', ['status' => $message] );
-
-		if( ($errorCode = $this->connection->getLastHttpCode()) != 200 )
-		{
-			throw new \Exception( "There was a problem posting to Twitter ({$errorCode})" );
-		}
+		return $this->connection;
 	}
 
 	/**
@@ -52,6 +60,8 @@ class Twitter
 	 */
 	public function postTweet( Tweet $tweet )
 	{
+		$connection = $this->getConnectionObject();
+
 		$contents['status'] = $tweet->getStatus();
 		$attachments = $tweet->getAttachments();
 
@@ -62,7 +72,7 @@ class Twitter
 		{
 			foreach( $attachments as $attachment )
 			{
-				$uploadResponse = $this->connection->upload( 'media/upload', ['media' => $attachment['source']] );
+				$uploadResponse = $connection->upload( 'media/upload', ['media' => $attachment['source']] );
 				$mediaIDs[] = $uploadResponse->media_id;
 
 				if( isset( $attachment['altText'] ) )
@@ -74,10 +84,10 @@ class Twitter
 			$contents['media_ids'] = implode( ',', $mediaIDs );
 		}
 
-		$this->connection->post( 'statuses/update', $contents );
+		$connection->post( 'statuses/update', $contents );
 
-		$response['body'] = get_object_vars( $this->connection->getLastBody() );
-		$response['httpCode'] = $this->connection->getLastHttpCode();
+		$response['body'] = get_object_vars( $connection->getLastBody() );
+		$response['httpCode'] = $connection->getLastHttpCode();
 
 		return $response;
 	}
