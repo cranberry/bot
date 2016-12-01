@@ -21,4 +21,13 @@ trait Bot
 	{
 		$this->history = $history;
 	}
+
+	/**
+	 * @param
+	 * @return	void
+	 */
+	public function writeHistory()
+	{
+		$this->history->write();
+	}
 }
