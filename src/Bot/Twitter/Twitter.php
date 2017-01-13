@@ -89,6 +89,11 @@ class Twitter
 		$response['body'] = get_object_vars( $connection->getLastBody() );
 		$response['httpCode'] = $connection->getLastHttpCode();
 
+		if( $response['httpCode'] != 200 )
+		{
+			throw new \Exception( $response['body']['errors'][0]->message, $response['httpCode'] );
+		}
+
 		return $response;
 	}
 }
