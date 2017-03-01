@@ -73,6 +73,15 @@ class Twitter
 			foreach( $attachments as $attachment )
 			{
 				$uploadResponse = $connection->upload( 'media/upload', ['media' => $attachment['source']] );
+
+				if( isset( $uploadResponse->errors ) )
+				{
+					$errorCode = $uploadResponse->errors[0]->code;
+					$errorMessage = $uploadResponse->errors[0]->message;
+
+					throw new \Exception( $errorMessage, $errorCode );
+				}
+
 				$mediaIDs[] = $uploadResponse->media_id;
 
 				if( isset( $attachment['altText'] ) )
